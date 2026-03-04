@@ -14,22 +14,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.5
+      - name: Grant Execute Permission for Gradlew
+        # This ensures the 'Robot' has permission to run the ./gradlew file
+        run: chmod +x gradlew
 
-      - name: Build APK
-        # This command searches the whole project for the 'assembleDebug' task
-        # It's the "Magic Key" that ignores folder naming errors
-        run: gradle assembleDebug --info --stacktrace
+      - name: Build Debug APK
+        # This is your perfect line!
+        run: ./gradlew :app:assembleDebug --stacktrace
 
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: TronMiner-Final-APK
-          # This looks everywhere for the .apk file to ensure you get it
-          path: "**/*.apk"
-          if-no-files-found: error
+          # We point directly to the app's output folder
+          path: app/build/outputs/apk/debug/*.apk
           
