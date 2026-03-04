@@ -20,12 +20,14 @@ jobs:
           gradle-version: 8.5
 
       - name: Build APK
-        # The '.' tells gradle to build whatever project is in the current directory
-        run: gradle assembleDebug --stacktrace
+        # We add '|| true' to force the script to continue even if there's a minor warning
+        run: gradle :app:assembleDebug --stacktrace || gradle assembleDebug --stacktrace
 
-      - name: Upload APK
+      - name: Search and Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: TronMiner-APK
+          name: TronMiner-Final-APK
+          # This 'path' tells GitHub: "Find every .apk file in the whole project"
           path: "**/*.apk"
+          if-no-files-found: error
           
