@@ -20,11 +20,12 @@ jobs:
           gradle-version: 8.5
 
       - name: Build APK
-        # The ':app:' prefix tells Gradle to look inside the app folder
-        run: gradle :app:assembleDebug --stacktrace
+        # The '.' tells gradle to build whatever project is in the current directory
+        run: gradle assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: TronMiner-APK
           path: "**/*.apk"
+          
