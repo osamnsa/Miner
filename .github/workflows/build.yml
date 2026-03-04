@@ -14,19 +14,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant Execute Permission for Gradlew
-        # This ensures the 'Robot' has permission to run the ./gradlew file
-        run: chmod +x gradlew
+      - name: Find and Fix Gradlew
+        # This command finds gradlew even if it's inside a subfolder
+        run: |
+          SEARCH_RESULT=$(find . -name gradlew)
+          if [ -z "$SEARCH_RESULT" ]; then
+            echo "Gradlew not found! Standardizing..."
+            gradle help # This will force-generate gradle files if missing
+          else
+            chmod +x $SEARCH_RESULT
+            echo "GRADLEW_PATH=$SEARCH_RESULT" >> $GITHUB_ENV
+          fi
 
       - name: Build Debug APK
-        # This is your perfect line!
-        run: ./gradlew :app:assembleDebug --stacktrace
+        # We use the path we just found
+        run: ${ { env.GRADLEW_PATH } } :app:assembleDebug --stacktrace
 
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: TronMiner-Final-APK
-          # We point directly to the app's output folder
-          path: app/build/outputs/apk/debug/*.apk
+          path: "**/*.apk"
           
