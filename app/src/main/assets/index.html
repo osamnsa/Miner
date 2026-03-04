@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tron Miner Pro - Multi-Algo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-lg">
+        <div class="bg-slate-900 rounded-3xl p-8 mb-6 border border-slate-800 text-center">
+            <h1 class="text-xl font-black text-red-500 mb-2 tracking-widest uppercase">Tron Mobile Miner</h1>
+            <div id="hashrate" class="text-6xl font-black mb-2">0.00</div>
+            <div class="text-slate-500 text-xs font-bold uppercase tracking-widest">Hashes Per Second</div>
+        </div>
+
+        <div class="space-y-4">
+            <input type="text" id="wallet" placeholder="TRX Wallet Address" class="w-full bg-slate-900 border-slate-800 rounded-2xl p-4 text-center font-mono">
+            
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
+                <div class="flex justify-between mb-4">
+                    <span class="text-xs font-bold text-slate-500 uppercase">Thread Count</span>
+                    <span id="coreVal" class="text-red-500 font-bold">4</span>
+                </div>
+                <input type="range" id="threads" min="1" max="8" value="4" class="w-full accent-red-600">
+            </div>
+
+            <button id="mineBtn" class="w-full bg-red-600 hover:bg-red-500 text-white py-5 rounded-3xl font-black text-xl transition-all active:scale-95 shadow-xl shadow-red-900/20">
+                START MINING
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const mineBtn = document.getElementById('mineBtn');
+        const hashrateDisplay = document.getElementById('hashrate');
+        const threadsInput = document.getElementById('threads');
+        const coreVal = document.getElementById('coreVal');
+        let isMining = false;
+
+        threadsInput.oninput = () => coreVal.innerText = threadsInput.value;
+
+        // ===== THE UPDATED ONCLICK FUNCTION =====
+        mineBtn.onclick = function() {
+            if (!isMining) {
+                // 1. TALK TO ANDROID: Trigger the background service
+                if (window.Android && typeof window.Android.startMiningService === "function") {
+                    console.log("Triggering Android Native Service...");
+                    window.Android.startMiningService();
+                }
+
+                // 2. UI Updates
+                isMining = true;
+                mineBtn.innerText = "STOP MINING";
+                mineBtn.classList.replace('bg-red-600', 'bg-slate-800');
+                
+                // 3. Start Miner Logic (Simulated for this snippet)
+                startMinerLogic();
+            } else {
+                isMining = false;
+                mineBtn.innerText = "START MINING";
+                mineBtn.classList.replace('bg-slate-800', 'bg-red-600');
+                stopMinerLogic();
+            }
+        };
+
+        function startMinerLogic() {
+            // Your existing V3 logic here (Stratum connection, etc.)
+            console.log("Mining started on " + threadsInput.value + " threads.");
+            // Example simulated feedback
+            window.minerInterval = setInterval(() => {
+                const mockHash = (Math.random() * 50 + 10).toFixed(2);
+                hashrateDisplay.innerText = mockHash;
+            }, 1000);
+        }
+
+        function stopMinerLogic() {
+            clearInterval(window.minerInterval);
+            hashrateDisplay.innerText = "0.00";
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
