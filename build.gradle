@@ -1,18 +1,37 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    namespace 'com.tron.miner'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.tron.miner"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
     }
-    dependencies {
-        // Changed to 8.1.0 for better compatibility with Gradle 8.5
-        classpath 'com.android.tools.build:gradle:8.1.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20"
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
 }
