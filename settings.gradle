@@ -1,1 +1,1 @@
-include ':Miner'
+include ':app'
