@@ -20,15 +20,13 @@ jobs:
           gradle-version: 8.5
 
       - name: Build APK
-        # We target the specific project to ensure the APK is generated
-        run: gradle assembleDebug --stacktrace
+        # Added --info to see the ACTUAL error message
+        run: gradle :Miner:assembleDebug --info --stacktrace
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: TronMiner-Final-APK
-          # This is the "Magic" line: it searches every single folder for the APK
           path: "**/*.apk"
-          # This prevents the job from failing if the file takes a second to appear
-          if-no-files-found: warn
           
