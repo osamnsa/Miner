@@ -1,8 +1,8 @@
-name: Generate Gradle Wrapper
-on: workflow_dispatch # This lets you click a "Run" button manually
+name: Android CI
+on: [push, workflow_dispatch]
 
 jobs:
-  repair:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,16 +13,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Generate Wrapper Files
-        # This command creates the .jar and .properties files
-        run: gradle wrapper --gradle-version 8.5
-
-      - name: Commit and Push back to Repo
-        # This sends the missing files back into your GitHub folder automatically
+      - name: Manually download Gradle Wrapper
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git add gradle/wrapper/gradle-wrapper.jar gradle/wrapper/gradle-wrapper.properties gradlew gradlew.bat
-          git commit -m "Auto-generated Gradle Wrapper files"
-          git push
-          
+          mkdir -p gradle/wrapper
+          # This pulls the exact 8.5 wrapper jar directly
+          curl -L https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+          chmod +x gradle/wrapper/gradle-wrapper.jar
+          chmod +x gradlew || true
+
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Miner-Debug-APK
+          path: "app/build/outputs/apk/debug/*.apk"
