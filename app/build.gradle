@@ -6,23 +6,12 @@ plugins {
 android {
     namespace 'com.tron.miner'
     compileSdk 34
-
     defaultConfig {
         applicationId "com.tron.miner"
         minSdk 24
         targetSdk 34
         versionCode 1
         versionName "1.0"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
-    }
-    
-    kotlinOptions {
-        jvmTarget = '17'
     }
 }
 
