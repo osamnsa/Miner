@@ -20,13 +20,16 @@ jobs:
           gradle-version: 8.5
 
       - name: Build APK
-        # Added --info to see the ACTUAL error message
-        run: gradle :Miner:assembleDebug --info --stacktrace
+        # This command searches the whole project for the 'assembleDebug' task
+        # It's the "Magic Key" that ignores folder naming errors
+        run: gradle assembleDebug --info --stacktrace
 
       - name: Upload APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: TronMiner-Final-APK
+          # This looks everywhere for the .apk file to ensure you get it
           path: "**/*.apk"
+          if-no-files-found: error
           
