@@ -83,6 +83,8 @@ jobs:
             -DANDROID_PLATFORM=$ANDROID_PLATFORM \
             -DCMAKE_BUILD_TYPE=Release \
             -DXMRIG_DEPS="$GITHUB_WORKSPACE/deps/${{ matrix.abi }}" \
+            -DUV_INCLUDE_DIR="$GITHUB_WORKSPACE/deps/${{ matrix.abi }}/include" \
+            -DUV_LIBRARY="$GITHUB_WORKSPACE/deps/${{ matrix.abi }}/lib/libuv.a" \
             -DWITH_HWLOC=OFF \
             -DWITH_TLS=OFF \
             -DWITH_OPENCL=OFF \
