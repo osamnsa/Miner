@@ -109,5 +109,15 @@
             android:textStyle="bold"
             android:text="0.00 H/s" />
 
+        <TextView
+            android:id="@+id/sharesText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="#888888"
+            android:text="" />
+
     </LinearLayout>
 </ScrollView>
