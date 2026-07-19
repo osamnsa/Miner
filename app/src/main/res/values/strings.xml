@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">XMR CPU Miner</string>
+    <string name="app_title">XMR CPU Miner</string>
+    <string name="label_pool">Pool address (host:port)</string>
+    <string name="hint_pool">pool.example.com:PORT</string>
+    <string name="label_wallet">Your Monero wallet address</string>
+    <string name="hint_wallet">4… (starts with 4)</string>
+    <string name="label_threads">CPU threads</string>
+    <string name="label_donate">Dev donation % (xmrig default is 1)</string>
+    <string name="start_mining">Start mining</string>
+    <string name="stop_mining">Stop mining</string>
+    <string name="status_idle">Not mining</string>
+    <string name="disclosure_short">Mines Monero (XMR) using this device\'s CPU only — no cloud component. Uses significant CPU, drains battery, and generates heat while running. Payout comes directly from the pool you choose to the wallet address you enter above.</string>
+    <string name="disclosure_full">This app performs real Monero (XMR) mining using only this device\'s CPU — there is no cloud or remote mining, and no third party sees a cut of your hashrate beyond the pool fee and the optional xmrig developer donation you set above.\n\nRunning it will:\n• Use significant CPU and drain your battery\n• Make the device run hot, which can throttle performance or affect battery health over time\n• Keep running in the foreground (with a visible, stoppable notification) until you tap Stop\n• Send your configured wallet address to the pool you specify, so make sure you trust that pool and control that wallet\n\nMining rewards are calculated and paid by the pool, not by this app — payout amount and timing depend entirely on the pool\'s terms.</string>
+</resources>
