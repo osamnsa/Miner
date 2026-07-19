@@ -1,0 +1,105 @@
+name: Build xmrig for Android
+
+on:
+  workflow_dispatch:
+    inputs:
+      xmrig_ref:
+        description: "xmrig git tag/branch/commit to build"
+        required: false
+        default: "v6.26.0"
+      libuv_ref:
+        description: "libuv git tag to build"
+        required: false
+        default: "v1.48.0"
+
+jobs:
+  build:
+    name: xmrig (${{ matrix.abi }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, armeabi-v7a]
+    env:
+      ANDROID_PLATFORM: android-24
+      XMRIG_REF: ${{ github.event.inputs.xmrig_ref || 'v6.26.0' }}
+      LIBUV_REF: ${{ github.event.inputs.libuv_ref || 'v1.48.0' }}
+    steps:
+      - name: Set up Android SDK cmdline-tools
+        uses: android-actions/setup-android@v3
+
+      - name: Accept SDK licenses
+        run: yes | sdkmanager --licenses > /dev/null || true
+
+      - name: Install latest available NDK via sdkmanager
+        run: |
+          set -euo pipefail
+          NDK_PKG=$(sdkmanager --list 2>/dev/null | grep -oE 'ndk;[0-9][0-9.]*' | sort -V | tail -1)
+          if [ -z "$NDK_PKG" ]; then
+            echo "Could not find an ndk package in sdkmanager --list output" >&2
+            exit 1
+          fi
+          echo "Installing $NDK_PKG"
+          yes | sdkmanager --install "$NDK_PKG"
+          NDK_DIR="$ANDROID_SDK_ROOT/ndk/${NDK_PKG#ndk;}"
+          echo "ANDROID_NDK_HOME=$NDK_DIR" >> "$GITHUB_ENV"
+          ls "$NDK_DIR"
+
+      - name: Clone libuv ${{ env.LIBUV_REF }}
+        run: git clone --branch "$LIBUV_REF" --depth 1 https://github.com/libuv/libuv.git
+
+      - name: Build libuv for ${{ matrix.abi }}
+        run: |
+          set -euo pipefail
+          cmake -S libuv -B build-libuv -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=${{ matrix.abi }} \
+            -DANDROID_PLATFORM=$ANDROID_PLATFORM \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DLIBUV_BUILD_SHARED=OFF \
+            -DCMAKE_INSTALL_PREFIX="$GITHUB_WORKSPACE/deps/${{ matrix.abi }}"
+          cmake --build build-libuv --target uv_a -j"$(nproc)"
+          cmake --install build-libuv
+
+      - name: Clone xmrig ${{ env.XMRIG_REF }}
+        run: git clone --branch "$XMRIG_REF" --depth 1 https://github.com/xmrig/xmrig.git
+
+      - name: Build xmrig for ${{ matrix.abi }}
+        run: |
+          set -euo pipefail
+          cmake -S xmrig -B build-xmrig -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=${{ matrix.abi }} \
+            -DANDROID_PLATFORM=$ANDROID_PLATFORM \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DXMRIG_DEPS="$GITHUB_WORKSPACE/deps/${{ matrix.abi }}" \
+            -DWITH_HWLOC=OFF \
+            -DWITH_TLS=OFF \
+            -DWITH_OPENCL=OFF \
+            -DWITH_CUDA=OFF \
+            -DWITH_KAWPOW=OFF \
+            -DWITH_GHOSTRIDER=OFF \
+            -DWITH_CN_LITE=OFF \
+            -DWITH_CN_HEAVY=OFF \
+            -DWITH_CN_PICO=OFF \
+            -DWITH_CN_FEMTO=OFF
+          cmake --build build-xmrig -j"$(nproc)"
+          ls -la build-xmrig
+
+      - name: Package as libxmrig.so
+        run: |
+          set -euo pipefail
+          mkdir -p "out/${{ matrix.abi }}"
+          BIN="build-xmrig/xmrig-notls"
+          [ -f "$BIN" ] || BIN="build-xmrig/xmrig"
+          cp "$BIN" "out/${{ matrix.abi }}/libxmrig.so"
+          chmod +x "out/${{ matrix.abi }}/libxmrig.so"
+          file "out/${{ matrix.abi }}/libxmrig.so"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libxmrig-${{ matrix.abi }}
+          path: out/${{ matrix.abi }}/libxmrig.so
+          if-no-files-found: error
