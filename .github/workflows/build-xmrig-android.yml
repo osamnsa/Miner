@@ -74,6 +74,16 @@ jobs:
       - name: Clone xmrig ${{ env.XMRIG_REF }}
         run: git clone --branch "$XMRIG_REF" --depth 1 https://github.com/xmrig/xmrig.git
 
+      - name: Patch xmrig for modern NDK (no separate libpthread/librt)
+        run: |
+          set -euo pipefail
+          # Since NDK r23, pthread/rt symbols live in libc.so directly and
+          # there is no libpthread.so/librt.so to link against, so xmrig's
+          # own -lpthread -lrt (cmake/os.cmake, Android branch) fails at
+          # link time on this (much newer) NDK. dl and log still exist.
+          grep -q 'set(EXTRA_LIBS pthread rt dl log)' xmrig/cmake/os.cmake
+          sed -i 's/set(EXTRA_LIBS pthread rt dl log)/set(EXTRA_LIBS dl log)/' xmrig/cmake/os.cmake
+
       - name: Build xmrig for ${{ matrix.abi }}
         run: |
           set -euo pipefail
