@@ -22,7 +22,10 @@ controls.
 
 Mining is CPU-intensive by design:
 
-- It will drain the battery quickly and keep the device warm/hot.
+- It will drain the battery quickly and keep the device warm/hot. The app
+  auto-pauses mining when the device gets too hot (see "How it works"
+  below) and resumes once it cools down, but it can still get warm before
+  that kicks in.
 - Sustained heat can throttle performance or affect battery longevity over
   time.
 - On most phones, the electricity/battery-wear cost is close to or higher
@@ -31,7 +34,10 @@ Mining is CPU-intensive by design:
 
 The app shows this disclosure before starting and keeps a persistent,
 stoppable notification visible the entire time it mines (Android requires
-foreground services to stay visible while running).
+foreground services to stay visible while running). It may also resume
+mining automatically in the background if Android kills the app process
+(e.g. under memory pressure) while a session was active — tap Stop (in the
+app or the notification) any time to fully turn it off.
 
 ## Setup
 
@@ -48,8 +54,14 @@ foreground services to stay visible while running).
 - `MainActivity` collects pool/wallet/thread/donation settings and shows
   the mining disclosure dialog before starting.
 - `MiningService` is a foreground service that runs the xmrig binary as a
-  subprocess with those settings, parses its stdout for live hashrate, and
-  shows it in a persistent notification and in the app.
-- Stopping (from the app or the notification's Stop action) kills the
-  subprocess, releases the wake lock, and removes the foreground
-  notification.
+  subprocess with those settings, parses its stdout for live hashrate and
+  accepted/rejected share counts, and shows them in a persistent
+  notification and in the app.
+- A thermal monitor (PowerManager's thermal-status API on Android 10+,
+  battery-temperature polling as a fallback on older versions) pauses the
+  xmrig subprocess — without stopping the whole service or notification —
+  when the device gets too hot, and relaunches it once it cools down.
+- The service persists its config and requests `START_STICKY`, so if
+  Android kills the process in the background it can resume the same
+  session on its own; an explicit Stop (from the app or the notification's
+  Stop action) is remembered so it won't restart itself after that.
