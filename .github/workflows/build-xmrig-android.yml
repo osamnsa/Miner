@@ -40,8 +40,17 @@ jobs:
             exit 1
           fi
           echo "Installing $NDK_PKG"
-          yes | sdkmanager --install "$NDK_PKG"
+          # sdkmanager closes stdin once the install finishes, which makes `yes`
+          # fail with a broken-pipe write error even on a successful install;
+          # with pipefail that would otherwise fail this step spuriously, so we
+          # verify success by checking the extracted directory instead of the
+          # pipeline's exit code.
+          yes | sdkmanager --install "$NDK_PKG" || true
           NDK_DIR="$ANDROID_SDK_ROOT/ndk/${NDK_PKG#ndk;}"
+          if [ ! -f "$NDK_DIR/source.properties" ]; then
+            echo "NDK install did not produce $NDK_DIR/source.properties" >&2
+            exit 1
+          fi
           echo "ANDROID_NDK_HOME=$NDK_DIR" >> "$GITHUB_ENV"
           ls "$NDK_DIR"
 
