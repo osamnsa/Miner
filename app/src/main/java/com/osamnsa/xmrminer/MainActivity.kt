@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var startStopButton: Button
     private lateinit var statusText: TextView
     private lateinit var hashrateText: TextView
+    private lateinit var sharesText: TextView
 
     private var mining = false
 
@@ -42,13 +43,26 @@ class MainActivity : AppCompatActivity() {
             intent ?: return
             val status = intent.getStringExtra(MiningService.EXTRA_STATUS_TEXT)
             val hashrate = intent.getStringExtra(MiningService.EXTRA_HASHRATE)
+            val accepted = intent.getIntExtra(MiningService.EXTRA_ACCEPTED, -1)
+            val rejected = intent.getIntExtra(MiningService.EXTRA_REJECTED, -1)
+
             if (status != null) statusText.text = status
             if (hashrate != null) hashrateText.text = hashrate
-            if (status == "Stopped" || status == "Engine exited" || status == "Engine missing" ||
-                status?.startsWith("Failed") == true
-            ) {
+            if (accepted >= 0 && rejected >= 0) {
+                sharesText.text = getString(R.string.shares_format, accepted, rejected)
+            }
+
+            val stoppedForGood = status == "Stopped" || status == "Engine exited" ||
+                status == "Engine missing" || status?.startsWith("Failed") == true
+            val pausedForHeat = status?.startsWith("Paused") == true
+
+            if (stoppedForGood) {
                 mining = false
                 startStopButton.text = getString(R.string.start_mining)
+                hashrateText.text = "0.00 H/s"
+            } else if (pausedForHeat) {
+                // Service is still alive and will resume on its own once the
+                // device cools down; keep the Stop button available.
                 hashrateText.text = "0.00 H/s"
             }
         }
@@ -67,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         startStopButton = findViewById(R.id.startStopButton)
         statusText = findViewById(R.id.statusText)
         hashrateText = findViewById(R.id.hashrateText)
+        sharesText = findViewById(R.id.sharesText)
 
         val maxThreads = Runtime.getRuntime().availableProcessors()
         threadsSeek.max = (maxThreads - 1).coerceAtLeast(0)
@@ -83,6 +98,14 @@ class MainActivity : AppCompatActivity() {
         poolInput.setText(prefs.getString("pool", ""))
         walletInput.setText(prefs.getString("wallet", ""))
         donateInput.setText(prefs.getInt("donate", 1).toString())
+
+        // Reflect a session the service may already be running (e.g. we're
+        // reopening the app while mining continues in the background).
+        if (prefs.getBoolean("should_run", false)) {
+            mining = true
+            startStopButton.text = getString(R.string.stop_mining)
+            statusText.text = getString(R.string.status_resuming)
+        }
 
         startStopButton.setOnClickListener {
             if (mining) stopMining() else confirmAndStartMining()
@@ -164,6 +187,7 @@ class MainActivity : AppCompatActivity() {
         mining = true
         startStopButton.text = getString(R.string.stop_mining)
         statusText.text = "Starting…"
+        sharesText.text = getString(R.string.shares_format, 0, 0)
     }
 
     private fun stopMining() {
