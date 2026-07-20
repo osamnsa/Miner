@@ -15,6 +15,27 @@ android {
         versionName "1.0"
     }
 
+    // Fixed, committed debug keystore (standard, non-secret Android debug
+    // credentials) so every build - including fresh CI runners, which have
+    // no prior debug.keystore and would otherwise each auto-generate their
+    // own - shares the same signing certificate. Without this, each new
+    // build's APK has a different signature and Android refuses to install
+    // it over the previous one.
+    signingConfigs {
+        debug {
+            storeFile file("debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
     // xmrig ships as a real executable run via ProcessBuilder, not a
     // loadable shared library, so it needs to be extracted to disk as a
     // plain file rather than kept mmap'd inside the APK.
