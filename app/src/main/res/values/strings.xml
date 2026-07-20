@@ -1,6 +1,9 @@
 <resources>
-    <string name="app_name">XMR CPU Miner</string>
-    <string name="app_title">XMR CPU Miner</string>
+    <string name="app_name">The Architect</string>
+    <string name="app_title">The Architect</string>
+    <string name="splash_title">THE ARCHITECT</string>
+    <string name="splash_tagline">Engineering quiet yield, one hash at a time.</string>
+    <string name="splash_badge">MONERO · RANDOMX · ON-DEVICE</string>
     <string name="label_pool">Pool address (host:port)</string>
     <string name="hint_pool">pool.example.com:PORT</string>
     <string name="label_wallet">Your Monero wallet address</string>
