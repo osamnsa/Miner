@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:label="XMR CPU Miner"
+        android:label="@string/app_title"
         android:icon="@drawable/ic_launcher"
         android:roundIcon="@drawable/ic_launcher"
         android:theme="@style/Theme.AppCompat.NoActionBar"
@@ -26,12 +26,17 @@
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-8281272452414129~2053710122" />
 
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/Theme.Architect.Splash"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".MainActivity" android:exported="false" />
 
         <service
             android:name=".MiningService"
