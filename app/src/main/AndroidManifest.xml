@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.osamnsa.xmrminer">
 
-    <!-- Needed to reach the mining pool you configure in the app. -->
+    <!-- Needed to reach the mining pool you configure in the app, and to
+         load banner ads. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -14,8 +15,16 @@
 
     <application
         android:label="XMR CPU Miner"
+        android:icon="@drawable/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher"
         android:theme="@style/Theme.AppCompat.NoActionBar"
         android:allowBackup="false">
+
+        <!-- Required by the Google Mobile Ads SDK; the AdView in
+             activity_main.xml won't load without this. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-8281272452414129~2053710122" />
 
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
