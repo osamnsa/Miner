@@ -17,6 +17,9 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusText: TextView
     private lateinit var hashrateText: TextView
     private lateinit var sharesText: TextView
+    private lateinit var adView: AdView
 
     private var mining = false
 
@@ -82,6 +86,10 @@ class MainActivity : AppCompatActivity() {
         statusText = findViewById(R.id.statusText)
         hashrateText = findViewById(R.id.hashrateText)
         sharesText = findViewById(R.id.sharesText)
+        adView = findViewById(R.id.adView)
+
+        MobileAds.initialize(this) {}
+        adView.loadAd(AdRequest.Builder().build())
 
         val maxThreads = Runtime.getRuntime().availableProcessors()
         threadsSeek.max = (maxThreads - 1).coerceAtLeast(0)
@@ -133,6 +141,21 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         unregisterReceiver(statusReceiver)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adView.resume()
+    }
+
+    override fun onPause() {
+        adView.pause()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        adView.destroy()
+        super.onDestroy()
     }
 
     private fun confirmAndStartMining() {
