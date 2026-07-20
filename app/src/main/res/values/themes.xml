@@ -1,0 +1,8 @@
+<resources>
+    <!-- Solid dark background applied immediately as the window background,
+         so the very first frame at cold start already matches the splash
+         layout instead of flashing white before it inflates. -->
+    <style name="Theme.Architect.Splash" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">#14181F</item>
+    </style>
+</resources>
